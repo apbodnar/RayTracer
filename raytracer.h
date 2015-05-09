@@ -1,20 +1,19 @@
 #include "glm/glm.hpp"
 #include "scene.h"
 
-using glm::vec3;
+using glm::dvec3;
 
 class RayTracer{
   private:
     static const unsigned int bytesPerPixel = 3;
-    char* screenBuffer;
-    vec3 eyePos;
-    vec3 lightPos;
+    unsigned char* screenBuffer;
+    dvec3 eyePos, lightPos;
     Scene scene;
     void initBuffer();
     void drawScene();
     void saveImage();
-    int viewX, viewY, numBytes;
+    unsigned int viewX, viewY, numBytes;
   public:
-    RayTracer(int,int,vec3,vec3);
+    RayTracer(unsigned int,unsigned int,dvec3,dvec3, unsigned int);
     ~RayTracer();
 };

@@ -2,20 +2,21 @@
 #include "glm/glm.hpp"
 #include "primitives.h"
 
-using glm::vec3;
+using glm::dvec3;
 
 class Scene{
   private:
     unsigned int numPrimitives;
     std::vector<Primitive*> primitveList;
-    vec3 light;
-    vec3 eyePos;
+    dvec3 light;
+    dvec3 eyePos;
     void initPrimList();
   public:
     Scene();
-    Scene(vec3,vec3);
+    Scene(dvec3,dvec3, unsigned int);
     Primitive* primitiveAt(unsigned int i){ return primitveList[i]; };
     unsigned int getNumPrimitives(){ return numPrimitives; }
-    vec3 getLight();
-    vec3 getEyePos();
+    dvec3 getLight();
+    dvec3 getEyePos();
+    dvec3 processRay(dvec3);
 };

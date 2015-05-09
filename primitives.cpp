@@ -1,55 +1,63 @@
 #include "primitives.h"
+#include "glm/gtx/norm.hpp"
 
-using glm::vec3;
+using glm::dvec3;
+
+const double MAX_DOUBLE = std::numeric_limits<double>::max();
+const double EPSILON = std::numeric_limits<double>::epsilon();
 
 /* Sphere implementaion */
-Sphere::Sphere(vec3 center, float radius, vec3 color){
+Sphere::Sphere(dvec3 center, double radius, dvec3 color){
   this->center=center;
   this->color=color;
   this->radius=radius;
 }
 
-Sphere::Sphere(vec3 center, float radius){
+Sphere::Sphere(dvec3 center, double radius){
   this->center=center;
-  this->color=vec3(255,0,0);
+  this->color=dvec3(255,0,0);
   this->radius=radius;
 }
 
-vec3 Sphere::checkCollison(float){
-  return vec3(1,1,1);
+double Sphere::checkCollision(dvec3 inRay, dvec3 origin){
+  double scalar = glm::dot(inRay,origin - center);  
+  double squared = (scalar * scalar) - glm::distance2(origin, center) + (radius * radius);
+  double root = glm::sqrt(squared);
+  return squared >= 0 ? -scalar + root : MAX_DOUBLE;
 }
-vec3 Sphere::handleCollison(vec3){
-  return vec3(1,1,1);
+
+dvec3 Sphere::handleCollision(dvec3){
+  return dvec3(1,1,1);
 }
-vec3 Sphere::getColor(){
+dvec3 Sphere::getColor(){
   return color;
 }
-vec3 Sphere::getCenter(){
+dvec3 Sphere::getCenter(){
   return center;
 }
 
 /* Triangle implementation */
 
-Triangle::Triangle(vec3 v1 , vec3 v2, vec3 v3, vec3 color){
+Triangle::Triangle(dvec3 v1 , dvec3 v2, dvec3 v3, dvec3 color){
   this->v1=v1;
   this->v2=v2;
   this->v3=v3;
   this->color=color;
 }
 
-Triangle::Triangle(vec3 v1 , vec3 v2, vec3 v3){
+Triangle::Triangle(dvec3 v1 , dvec3 v2, dvec3 v3){
   this->v1=v1;
   this->v2=v2;
   this->v3=v3;
-  this->color=vec3(0,255,0);
+  this->color=dvec3(0,255,0);
 }
 
-vec3 Triangle::checkCollison(float){
-  return vec3(1,1,1);
+double Triangle::checkCollision(dvec3 inRay, dvec3 origin){
+  return 1.0;
 }
-vec3 Triangle::handleCollison(vec3){
-  return vec3(1,1,1);
+dvec3 Triangle::handleCollision(dvec3){
+  return dvec3(1,1,1);
 }
-vec3 Triangle::getColor(){
+dvec3 Triangle::getColor(){
   return color;
 }

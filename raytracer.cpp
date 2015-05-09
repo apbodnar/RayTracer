@@ -2,14 +2,14 @@
 #include <iostream>
 #include <fstream>
 
-using glm::vec3;
+using glm::dvec3;
 
-RayTracer::RayTracer(int x, int y, vec3 iPos, vec3 lPos) : scene(lPos,iPos), viewX(x), viewY(y)
+RayTracer::RayTracer(unsigned int x,unsigned int y, dvec3 iPos, dvec3 lPos, unsigned int numPrims) : scene(iPos,lPos, numPrims), viewX(x), viewY(y)
 {
   numBytes = viewX * viewY * bytesPerPixel;
-  screenBuffer = new char[numBytes];
-  initBuffer();
-  //drawScene();
+  screenBuffer = new unsigned char[numBytes];
+  //initBuffer();
+  drawScene();
   saveImage();
 }
 
@@ -20,18 +20,26 @@ RayTracer::~RayTracer(){
 
 void RayTracer::initBuffer(){
   for(size_t i = 0; i < numBytes; i++){
-    screenBuffer[i] = i/bytesPerPixel % 256;
+    screenBuffer[i] = 255 - (i/bytesPerPixel % 256);
   }
   return;
 }
 
+/*
+Viewport is clamped to -1,1 on x,y
+*/
+
 void RayTracer::drawScene(){
-  unsigned int numPrims = scene.getNumPrimitives();
+  dvec3 eyePos = scene.getEyePos();
   for(size_t i = 0; i < numBytes/bytesPerPixel; i++){
-    int x = i % viewX;
-    int y = i / viewY;
-    vec3 eyeRay = scene.getEyePos();
-    std::cout << x << ", " << y << std::endl;
+    double x = (i % viewX + 0.5) / (viewX / 2) - 1.0;
+    double y = -(i / viewY + 0.5) / (viewY / 2) + 1.0;
+    dvec3 eyeRay = glm::normalize(dvec3(x,y,0) - eyePos);
+    dvec3 outColor = scene.processRay(eyeRay);
+    screenBuffer[i*bytesPerPixel + 0] = outColor[0];
+    screenBuffer[i*bytesPerPixel + 1] = outColor[1];
+    screenBuffer[i*bytesPerPixel + 2] = outColor[2];
+    //std::cout << eyeRay[0] << ", " << eyeRay[1] << std::endl;
   }
   return;
 }
@@ -41,7 +49,7 @@ void RayTracer::saveImage(){
   ofs << "P6" << std::endl;
   ofs << viewX << " " << viewY << std::endl;
   ofs << 255 << std::endl;
-  ofs.write (screenBuffer,numBytes);
+  ofs.write (reinterpret_cast<char*>(screenBuffer),numBytes);
   ofs.close();
   return;
 }

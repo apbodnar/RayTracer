@@ -1,38 +1,37 @@
 #pragma once
 #include "glm/glm.hpp"
 
-using glm::vec3;
+using glm::dvec3;
 
 class Primitive {
   public:
-    virtual vec3 checkCollison(float) = 0;
-    virtual vec3 handleCollison(vec3) = 0;
-    virtual vec3 getColor() = 0;
+    virtual double checkCollision(dvec3, dvec3) = 0;
+    virtual dvec3 handleCollision(dvec3) = 0;
+    virtual dvec3 getColor() = 0;
 };
 
 class Sphere: public Primitive{
   private: 
-    vec3 center;
-    vec3 color;
-    float radius;
+    dvec3 center;
+    dvec3 color;
+    double radius;
   public:
-    Sphere(vec3, float, vec3);
-    Sphere(vec3, float);
-    float getRadius;
-    vec3 checkCollison(float);
-    vec3 handleCollison(vec3);
-    vec3 getColor();
-    vec3 getCenter();
+    Sphere(dvec3, double, dvec3);
+    Sphere(dvec3, double);
+    double checkCollision(dvec3, dvec3);
+    dvec3 handleCollision(dvec3);
+    dvec3 getColor();
+    dvec3 getCenter();
 };
 
 class Triangle: public Primitive{
   private: 
-    vec3 v1, v2, v3;
-    vec3 color;
+    dvec3 v1, v2, v3;
+    dvec3 color;
   public:
-    Triangle(vec3, vec3, vec3, vec3);
-    Triangle(vec3, vec3, vec3);
-    vec3 checkCollison(float);
-    vec3 handleCollison(vec3);
-    vec3 getColor();
+    Triangle(dvec3, dvec3, dvec3, dvec3);
+    Triangle(dvec3, dvec3, dvec3);
+    double checkCollision(dvec3, dvec3);
+    dvec3 handleCollision(dvec3);
+    dvec3 getColor();
 };
