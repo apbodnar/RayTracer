@@ -10,7 +10,6 @@ class RayTracer{
     unsigned int numBounces;
     dvec3 eyePos, lightPos;
     Scene scene;
-    void initBuffer();
     void drawScene();
     void saveImage();
     unsigned int viewX, viewY, numBytes;

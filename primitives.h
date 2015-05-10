@@ -8,6 +8,7 @@ class Primitive {
     virtual double checkCollision(dvec3, dvec3) = 0;
     virtual dvec3 getNormal(dvec3 p) = 0;
     virtual dvec3 getColor(dvec3,dvec3) = 0;
+    double ambient;
 };
 
 class Sphere: public Primitive{

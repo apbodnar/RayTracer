@@ -11,12 +11,14 @@ Sphere::Sphere(dvec3 center, double radius, dvec3 color){
   this->center=center;
   this->color=color;
   this->radius=radius;
+  ambient = 0.5;
 }
 
 Sphere::Sphere(dvec3 center, double radius){
   this->center=center;
   this->color=dvec3(0,255,0);
   this->radius=radius;
+  ambient = 0.5;
 }
 
 double Sphere::checkCollision(dvec3 inRay, dvec3 origin){
@@ -31,14 +33,11 @@ dvec3 Sphere::getNormal(dvec3 p){
 }
 
 dvec3 Sphere::getColor(dvec3 normal, dvec3 light){
-  double i = 5.0 / glm::length2(light);
-  i = i > 1.0 ? 1.0 : i;
-  double grade = glm::dot(normal, glm::normalize(light));
-  return color * (grade > 0.0 ? grade * i : 0.0);
+  double i = glm::min(5.0 / glm::length2(light),1.0);
+  double grade = glm::dot(normal, glm::normalize(light))*i;
+  double diffuse = (1.0 - ambient) * grade;
+  return color * (ambient + diffuse);
 }
-
-
-
 
 
 

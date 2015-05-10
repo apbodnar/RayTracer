@@ -54,7 +54,7 @@ dvec3 Scene::processRay(dvec3 ray, dvec3 origin, unsigned int depth, int current
       }
     }
   }
-  return color;
+  return glm::clamp(color,0.0,255.0);
 }
 
 dvec3 Scene::getEyePos(){

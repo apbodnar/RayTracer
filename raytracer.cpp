@@ -9,7 +9,6 @@ RayTracer::RayTracer(unsigned int x,unsigned int y, dvec3 iPos, dvec3 lPos, unsi
 {
   numBytes = viewX * viewY * bytesPerPixel;
   screenBuffer = new unsigned char[numBytes];
-  //initBuffer();
   drawScene();
   saveImage();
 }
@@ -19,19 +18,13 @@ RayTracer::~RayTracer(){
   screenBuffer = NULL;
 }
 
-void RayTracer::initBuffer(){
-  for(size_t i = 0; i < numBytes; i++){
-    screenBuffer[i] = 255 - (i/bytesPerPixel % 256);
-  }
-  return;
-}
-
 /*
 Viewport is clamped to -1,1 on x,y
 */
 
 void RayTracer::drawScene(){
   dvec3 eyePos = scene.getEyePos();
+  #pragma omp parallel for
   for(size_t i = 0; i < numBytes/bytesPerPixel; i++){
     double x = (i % viewX + 0.5) / (viewX / 2) - 1.0;
     double y = -(i / viewY + 0.5) / (viewY / 2) + 1.0;
@@ -41,7 +34,6 @@ void RayTracer::drawScene(){
     screenBuffer[i*bytesPerPixel + 0] = outColor[0];
     screenBuffer[i*bytesPerPixel + 1] = outColor[1];
     screenBuffer[i*bytesPerPixel + 2] = outColor[2];
-    //std::cout << eyeRay[0] << ", " << eyeRay[1] << std::endl;
   }
   return;
 }
