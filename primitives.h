@@ -6,8 +6,8 @@ using glm::dvec3;
 class Primitive {
   public:
     virtual double checkCollision(dvec3, dvec3) = 0;
-    virtual dvec3 handleCollision(dvec3) = 0;
-    virtual dvec3 getColor() = 0;
+    virtual dvec3 getNormal(dvec3 p) = 0;
+    virtual dvec3 getColor(dvec3,dvec3) = 0;
 };
 
 class Sphere: public Primitive{
@@ -19,9 +19,8 @@ class Sphere: public Primitive{
     Sphere(dvec3, double, dvec3);
     Sphere(dvec3, double);
     double checkCollision(dvec3, dvec3);
-    dvec3 handleCollision(dvec3);
-    dvec3 getColor();
-    dvec3 getCenter();
+    dvec3 getColor(dvec3,dvec3);
+    dvec3 getNormal(dvec3 p);
 };
 
 class Triangle: public Primitive{
@@ -32,6 +31,5 @@ class Triangle: public Primitive{
     Triangle(dvec3, dvec3, dvec3, dvec3);
     Triangle(dvec3, dvec3, dvec3);
     double checkCollision(dvec3, dvec3);
-    dvec3 handleCollision(dvec3);
     dvec3 getColor();
 };

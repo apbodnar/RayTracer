@@ -16,7 +16,6 @@ class Scene{
     Scene(dvec3,dvec3, unsigned int);
     Primitive* primitiveAt(unsigned int i){ return primitveList[i]; };
     unsigned int getNumPrimitives(){ return numPrimitives; }
-    dvec3 getLight();
     dvec3 getEyePos();
-    dvec3 processRay(dvec3);
+    dvec3 processRay(dvec3,dvec3, unsigned int, int);
 };

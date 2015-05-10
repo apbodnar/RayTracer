@@ -15,7 +15,7 @@ Sphere::Sphere(dvec3 center, double radius, dvec3 color){
 
 Sphere::Sphere(dvec3 center, double radius){
   this->center=center;
-  this->color=dvec3(255,0,0);
+  this->color=dvec3(0,255,0);
   this->radius=radius;
 }
 
@@ -23,18 +23,24 @@ double Sphere::checkCollision(dvec3 inRay, dvec3 origin){
   double scalar = glm::dot(inRay,origin - center);  
   double squared = (scalar * scalar) - glm::distance2(origin, center) + (radius * radius);
   double root = glm::sqrt(squared);
-  return squared >= 0 ? -scalar + root : MAX_DOUBLE;
+  return squared >= 0 ? -scalar - root : MAX_DOUBLE;
 }
 
-dvec3 Sphere::handleCollision(dvec3){
-  return dvec3(1,1,1);
+dvec3 Sphere::getNormal(dvec3 p){
+  return glm::normalize(p - center);
 }
-dvec3 Sphere::getColor(){
-  return color;
+
+dvec3 Sphere::getColor(dvec3 normal, dvec3 light){
+  double i = 5.0 / glm::length2(light);
+  i = i > 1.0 ? 1.0 : i;
+  double grade = glm::dot(normal, glm::normalize(light));
+  return color * (grade > 0.0 ? grade * i : 0.0);
 }
-dvec3 Sphere::getCenter(){
-  return center;
-}
+
+
+
+
+
 
 /* Triangle implementation */
 
@@ -55,9 +61,7 @@ Triangle::Triangle(dvec3 v1 , dvec3 v2, dvec3 v3){
 double Triangle::checkCollision(dvec3 inRay, dvec3 origin){
   return 1.0;
 }
-dvec3 Triangle::handleCollision(dvec3){
-  return dvec3(1,1,1);
-}
+
 dvec3 Triangle::getColor(){
   return color;
 }

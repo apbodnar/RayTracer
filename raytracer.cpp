@@ -4,7 +4,8 @@
 
 using glm::dvec3;
 
-RayTracer::RayTracer(unsigned int x,unsigned int y, dvec3 iPos, dvec3 lPos, unsigned int numPrims) : scene(iPos,lPos, numPrims), viewX(x), viewY(y)
+RayTracer::RayTracer(unsigned int x,unsigned int y, dvec3 iPos, dvec3 lPos, unsigned int numPrims, unsigned int bounces) 
+: scene(iPos,lPos, numPrims), viewX(x), viewY(y), numBounces(bounces)
 {
   numBytes = viewX * viewY * bytesPerPixel;
   screenBuffer = new unsigned char[numBytes];
@@ -34,8 +35,9 @@ void RayTracer::drawScene(){
   for(size_t i = 0; i < numBytes/bytesPerPixel; i++){
     double x = (i % viewX + 0.5) / (viewX / 2) - 1.0;
     double y = -(i / viewY + 0.5) / (viewY / 2) + 1.0;
-    dvec3 eyeRay = glm::normalize(dvec3(x,y,0) - eyePos);
-    dvec3 outColor = scene.processRay(eyeRay);
+    dvec3 screenPos = dvec3(x,y,0);
+    dvec3 eyeRay = glm::normalize(screenPos - eyePos);
+    dvec3 outColor = scene.processRay(eyeRay, screenPos, numBounces, -1);
     screenBuffer[i*bytesPerPixel + 0] = outColor[0];
     screenBuffer[i*bytesPerPixel + 1] = outColor[1];
     screenBuffer[i*bytesPerPixel + 2] = outColor[2];
