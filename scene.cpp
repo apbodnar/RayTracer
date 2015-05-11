@@ -26,6 +26,20 @@ Scene::Scene(dvec3 eyePos, dvec3 light, unsigned int numPrims){
   initPrimList();
 }
 
+double Scene::getDepth(dvec3 ray, dvec3 origin, int current, int& pIndex){
+  double t = MAX_DOUBLE;
+  for(size_t i = 0; i < numPrimitives; i++){
+    if(i == current) continue;
+    Primitive* prim = primitveList[i];
+    double d = prim->checkCollision(ray, origin);
+    if(d < t && d > 0){
+      pIndex = i;
+      t = d;
+    }
+  }
+  return t;
+}
+
 void Scene::initPrimList(){
   srand(time(NULL));
   for(size_t i = 0; i < numPrimitives; i++){
@@ -35,23 +49,22 @@ void Scene::initPrimList(){
   }
 }
 
-dvec3 Scene::processRay(dvec3 ray, dvec3 origin, unsigned int depth, int current){
-  double t = MAX_DOUBLE;
+dvec3 Scene::processRay(dvec3 ray, dvec3 origin, int current, unsigned int depth){
+  int pIndex = -1, n;
+  double t = getDepth(ray, origin, current, pIndex);
+  bool hit = t < MAX_DOUBLE;
   dvec3 color = dvec3(0,0,0);
-  for(size_t i = 0; i < numPrimitives; i++){
-    if(i == current) continue;
-    Primitive* prim = primitveList[i];
-    double d = prim->checkCollision(ray, origin);
-    if(d < t && d > 0){
-      t = d;
-      dvec3 p = origin + ray * d;
-      dvec3 normal = prim->getNormal(p);
-      dvec3 lightRay = p - light;
-      color = prim->getColor(-normal, lightRay, ray);
-      if(depth > 0){
-        dvec3 reflection = ray - glm::dot(ray,normal) * 2 * normal;
-        color += processRay(reflection,p,depth-1,i) * 0.2; 
-      }
+  if(hit){
+    Primitive* prim = primitveList[pIndex];
+    dvec3 p = origin + ray * t;
+    dvec3 normal = prim->getNormal(p);
+    dvec3 lightRay = p - light;
+    dvec3 atLight = glm::normalize(light - p);
+    bool shaded = getDepth(atLight,p, pIndex, n) < MAX_DOUBLE;
+    color = prim->getColor(-normal, lightRay, ray, shaded);
+    if(depth > 0){
+      dvec3 reflection = ray - glm::dot(ray,normal) * 2 * normal;
+      color += processRay(reflection, p, pIndex, depth-1) * 0.1; 
     }
   }
   return glm::clamp(color,0.0,255.0);

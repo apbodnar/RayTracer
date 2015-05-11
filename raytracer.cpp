@@ -30,7 +30,7 @@ void RayTracer::drawScene(){
     double y = -(i / viewY + 0.5) / (viewY / 2) + 1.0;
     dvec3 screenPos = dvec3(x,y,0);
     dvec3 eyeRay = glm::normalize(screenPos - eyePos);
-    dvec3 outColor = scene.processRay(eyeRay, screenPos, numBounces, -1);
+    dvec3 outColor = scene.processRay(eyeRay, screenPos, -1, numBounces);
     screenBuffer[i*bytesPerPixel + 0] = outColor[0];
     screenBuffer[i*bytesPerPixel + 1] = outColor[1];
     screenBuffer[i*bytesPerPixel + 2] = outColor[2];
