@@ -30,7 +30,7 @@ void Scene::initPrimList(){
   srand(time(NULL));
   for(size_t i = 0; i < numPrimitives; i++){
     primitveList.push_back(new Sphere(dvec3(rf()*2 -1,rf()*2-1,rf()+0.5),
-                                      rf()/3.0,
+                                      rf()/5.0 + 0.1,
                                       dvec3(rf()*255,rf()*255,rf()*255)));
   }
 }
@@ -47,7 +47,7 @@ dvec3 Scene::processRay(dvec3 ray, dvec3 origin, unsigned int depth, int current
       dvec3 p = origin + ray * d;
       dvec3 normal = prim->getNormal(p);
       dvec3 lightRay = p - light;
-      color = prim->getColor(-normal, lightRay);
+      color = prim->getColor(-normal, lightRay, ray);
       if(depth > 0){
         dvec3 reflection = ray - glm::dot(ray,normal) * 2 * normal;
         color += processRay(reflection,p,depth-1,i) * 0.2; 

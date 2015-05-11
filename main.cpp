@@ -7,6 +7,6 @@
 using glm::dvec3;
 
 int main(){
-  RayTracer rayTracer(2048,2048,dvec3(0,0,-2),dvec3(0,0,0.5), 20, 2);
+  RayTracer rayTracer(4096,4096,dvec3(0,0,-2),dvec3(0,1,0.5), 30, 2);
   return 0;
 }

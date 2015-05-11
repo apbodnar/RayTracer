@@ -32,11 +32,14 @@ dvec3 Sphere::getNormal(dvec3 p){
   return glm::normalize(p - center);
 }
 
-dvec3 Sphere::getColor(dvec3 normal, dvec3 light){
-  double i = glm::min(5.0 / glm::length2(light),1.0);
-  double grade = glm::dot(normal, glm::normalize(light))*i;
+dvec3 Sphere::getColor(dvec3 normal, dvec3 light, dvec3 ray){
+  dvec3 lightDir = glm::normalize(light);
+  double i = glm::min(5.0 / (1.0 + glm::length2(light)),1.0);
+  dvec3 half = glm::normalize(lightDir + ray);
+  double specular  = glm::pow(glm::dot(half,normal),32)*i;
+  double grade = glm::clamp(glm::dot(normal, lightDir),0.0,1.0)*i;
   double diffuse = (1.0 - ambient) * grade;
-  return color * (ambient + diffuse);
+  return color * (ambient + diffuse + specular);
 }
 
 
