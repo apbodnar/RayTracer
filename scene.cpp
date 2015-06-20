@@ -1,8 +1,5 @@
-#include <vector>
-#include <iostream>
-#include <time.h>
-#include "primitives.h"
 #include "scene.h"
+#include <time.h>
 
 using glm::dvec3;
 
@@ -12,25 +9,20 @@ double rf(){
   return rand() / (double)RAND_MAX;
 }
 
-Scene::Scene(){
-  numPrimitives = 5;
-  light = dvec3(1,1,1);
-  eyePos = dvec3(0,0,0);
-  initPrimList();
-}
-
-Scene::Scene(dvec3 eyePos, dvec3 light, unsigned int numPrims){
-  numPrimitives = numPrims;
+Scene::Scene(dvec3 eyePos, dvec3 light, unsigned int numPrims) 
+: mesh("gourd.obj", true)
+{
   this->light = light;
   this->eyePos = eyePos;
-  initPrimList();
+  initObjects(numPrims);
 }
 
 double Scene::getDepth(dvec3 ray, dvec3 origin, int current, int& pIndex){
   double t = MAX_DOUBLE;
-  for(size_t i = 0; i < numPrimitives; i++){
+  unsigned int numPrims = mesh.getNumPrims();
+  for(size_t i = 0; i < numPrims; i++){
     if(i == current) continue;
-    Primitive* prim = primitveList[i];
+    Primitive* prim = mesh.primitiveAt(i);
     double d = prim->checkCollision(ray, origin);
     if(d < t && d > 0){
       pIndex = i;
@@ -40,31 +32,29 @@ double Scene::getDepth(dvec3 ray, dvec3 origin, int current, int& pIndex){
   return t;
 }
 
-void Scene::initPrimList(){
+void Scene::initObjects(unsigned int numPrims){
   srand(time(NULL));
-  for(size_t i = 0; i < numPrimitives; i++){
+  for(size_t i = 0; i < numPrims; i++){
     primitveList.push_back(new Sphere(dvec3(rf()*2 -1,rf()*2-1,rf()+0.5),
-                                      rf()/5.0 + 0.1,
-                                      dvec3(rf()*255,rf()*255,rf()*255)));
+                                        rf()/5.0 + 0.1,
+                                        dvec3(rf()*255,rf()*255,rf()*255)));
   }
 }
 
 dvec3 Scene::processRay(dvec3 ray, dvec3 origin, int current, unsigned int depth){
   int pIndex = -1, n;
   double t = getDepth(ray, origin, current, pIndex);
-  bool hit = t < MAX_DOUBLE;
   dvec3 color = dvec3(0,0,0);
-  if(hit){
-    Primitive* prim = primitveList[pIndex];
+  if(t < MAX_DOUBLE){
+    Primitive* prim = mesh.primitiveAt(pIndex);
     dvec3 p = origin + ray * t;
     dvec3 normal = prim->getNormal(p);
     dvec3 lightRay = p - light;
-    dvec3 atLight = glm::normalize(light - p);
-    bool shaded = getDepth(atLight,p, pIndex, n) < MAX_DOUBLE;
+    bool shaded = getDepth(glm::normalize(-lightRay),p, pIndex, n) < glm::length(lightRay);
     color = prim->getColor(-normal, lightRay, ray, shaded);
     if(depth > 0){
       dvec3 reflection = ray - glm::dot(ray,normal) * 2 * normal;
-      color += processRay(reflection, p, pIndex, depth-1) * 0.1; 
+      color += processRay(reflection, p, pIndex, depth-1) * 0.3; 
     }
   }
   return glm::clamp(color,0.0,255.0);
