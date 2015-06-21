@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-Mesh::Mesh(std::string path, bool smooth){
+Mesh::Mesh(const char* path, bool smooth){
   std::ifstream meshFile;
   meshFile.open(path);
   std::vector<dvec3> vertices;
@@ -14,7 +14,7 @@ Mesh::Mesh(std::string path, bool smooth){
     } else if(mode == 'f'){
       unsigned int v1, v2, v3;
       meshFile >> v1 >> v2 >> v3;
-      primitveList.push_back(new Triangle(vertices[v1-1]/5.0,vertices[v2-1]/5.0,vertices[v3-1]/5.0));
+      primitveList.push_back(new Triangle(vertices[v1-1]/25.0,vertices[v2-1]/25.0,vertices[v3-1]/25.0));
     }
   }
   primitveList.push_back(new Sphere(dvec3(0.75,0.5,1.0),

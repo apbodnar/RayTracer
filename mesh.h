@@ -13,5 +13,5 @@ class Mesh{
   public:
     unsigned int getNumPrims(){ return primitveList.size(); }
     Primitive* primitiveAt(unsigned int i){ return primitveList[i]; }
-    Mesh(std::string, bool);
+    Mesh(const char*, bool);
 };

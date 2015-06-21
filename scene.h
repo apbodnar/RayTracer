@@ -9,7 +9,7 @@ using glm::dvec3;
 
 class Scene{
   private:
-    std::vector<Primitive*> primitveList;
+    std::vector<Primitive*> primitiveList;
     dvec3 light;
     dvec3 eyePos;
     void initObjects(unsigned int);
@@ -17,7 +17,7 @@ class Scene{
     Mesh mesh;
   public:
     Scene(dvec3,dvec3, unsigned int);
-    Primitive* primitiveAt(unsigned int i){ return primitveList[i]; };
+    Primitive* primitiveAt(unsigned int i){ return primitiveList[i]; };
     dvec3 getEyePos();
     dvec3 processRay(dvec3, dvec3, int, unsigned int);
 };
