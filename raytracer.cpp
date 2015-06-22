@@ -4,12 +4,12 @@
 
 using glm::dvec3;
 
-RayTracer::RayTracer(unsigned int x,unsigned int y, dvec3 iPos, dvec3 lPos, unsigned int numPrims, unsigned int bounces) 
-: scene(iPos,lPos, numPrims), viewX(x), viewY(y), numBounces(bounces)
+RayTracer::RayTracer(unsigned int x,unsigned int y, dvec3 iPos, dvec3 lPos, unsigned int numPrims, unsigned int samples, unsigned int bounces) 
+: scene(iPos,lPos, numPrims), viewX(x), viewY(y)
 {
   numBytes = viewX * viewY * bytesPerPixel;
   screenBuffer = new unsigned char[numBytes];
-  drawScene();
+  drawScene(samples, bounces);
   saveImage();
 }
 
@@ -22,7 +22,7 @@ RayTracer::~RayTracer(){
 Viewport is clamped to -1,1 on x,y
 */
 
-void RayTracer::drawScene(){
+void RayTracer::drawScene(unsigned int samples, unsigned int bounces){
   dvec3 eyePos = scene.getEyePos();
   #pragma omp parallel for
   for(size_t i = 0; i < numBytes/bytesPerPixel; i++){
@@ -30,7 +30,7 @@ void RayTracer::drawScene(){
     double y = -(i / viewY + 0.5) / (viewY / 2) + 1.0;
     dvec3 screenPos = dvec3(x,y,0);
     dvec3 eyeRay = glm::normalize(screenPos - eyePos);
-    dvec3 outColor = scene.processRay(eyeRay, screenPos, -1, numBounces);
+    dvec3 outColor = scene.processRay(eyeRay, screenPos, -1, samples, bounces);
     screenBuffer[i*bytesPerPixel + 0] = outColor[0];
     screenBuffer[i*bytesPerPixel + 1] = outColor[1];
     screenBuffer[i*bytesPerPixel + 2] = outColor[2];
