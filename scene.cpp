@@ -49,44 +49,30 @@ void Scene::initObjects(unsigned int numPrims){
   srand(time(NULL));
   for(size_t i = 0; i < numPrims; i++){
     primitiveList.push_back(new Sphere(dvec3(rf()*2 -1,rf()*2-1,rf()+0.5),
-                                        rf()/5.0 + 0.1,
-                                        dvec3(rf()*255,rf()*255,rf()*255)));
+                                        rf()/5.0 + 0.2,
+                                        dvec3(rf(),rf(),rf()),
+                                        0.75, 0));
   }
-  primitiveList.push_back(new Triangle(cube[0],cube[3],cube[2],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[2],cube[1],cube[0],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[0],cube[4],cube[7],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[7],cube[3],cube[0],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[0],cube[1],cube[5],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[5],cube[4],cube[0],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[3],cube[7],cube[6],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[6],cube[2],cube[3],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[1],cube[2],cube[6],dvec3(rf()*255,rf()*255,rf()*255)));
-  primitiveList.push_back(new Triangle(cube[6],cube[5],cube[1],dvec3(rf()*255,rf()*255,rf()*255)));
+  //primitiveList.push_back(new Sphere(dvec3(1e5+1,0,1), 1e5, dvec3(1,1,1),0.75, 0.0));
+  //primitiveList.push_back(new Sphere(dvec3(-1e5-1,0,1), 1e5, dvec3(1,1,1),0.75, 0.0));
+  //primitiveList.push_back(new Sphere(dvec3(0,1e5+1,1), 1e5, dvec3(0.5,1,0.5),0.75, 0.0));
+  //primitiveList.push_back(new Sphere(dvec3(0,-1e5-1,1), 1e5, dvec3(1,0.5,0.5),0.75, 0.0));
+  //primitiveList.push_back(new Sphere(dvec3(0,0,1e5+2), 1e5, dvec3(1,1,1),0.75, 0.0));
+  primitiveList.push_back(new Triangle(cube[0],cube[3],cube[2],dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(cube[2],cube[1],cube[0],dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(cube[0],cube[4],cube[7],dvec3(1,0.25,0.25),0.75,0));
+  primitiveList.push_back(new Triangle(cube[7],cube[3],cube[0],dvec3(1,0.25,0.25),0.75,0));
+  primitiveList.push_back(new Triangle(cube[0],cube[1],cube[5],dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(cube[5],cube[4],cube[0],dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(cube[3],cube[7],cube[6],dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(cube[6],cube[2],cube[3],dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(cube[1],cube[2],cube[6],dvec3(0.25,0.25,1),0.75,0));
+  primitiveList.push_back(new Triangle(cube[6],cube[5],cube[1],dvec3(0.25,0.25,1),0.75,0));
+  primitiveList.push_back(new Sphere(dvec3(0,1.15,1), 0.4, dvec3(1,1,1), 0, 12.0));
 }
 
-dvec3 Scene::processRay(dvec3 ray, dvec3 origin, int current, unsigned int samples, unsigned int depth){
-  int pIndex = -1, n;
-  double t = getDepth(ray, origin, current, pIndex);
-  dvec3 color = dvec3(0,0,0);
-  dvec3 reflected = dvec3(0,0,0);
-  for(unsigned int i=0; i<samples && t < MAX_DOUBLE; i++){
-    //std::cout << i << "akjsdhlkf"<< std::endl;
-    Primitive* prim = primitiveList[pIndex];
-    dvec3 p = origin + ray * t;
-    dvec3 normal = prim->getNormal(p);
-    dvec3 lightRay = p - light;
-    color = prim->getColor(-normal, lightRay, ray, true);
-    dvec3 rRay = glm::normalize(dvec3(rf(),rf(),rf()));
-    rRay = glm::dot(rRay,normal) > 0 ? rRay : -rRay;
-    double cosTheta = glm::dot(rRay, normal);
-    if(depth > 0)
-      reflected = (reflected*static_cast<double>(i) + cosTheta * processRay(rRay, p, pIndex, samples, depth-1))/(i+1.0);
-  }
-  return glm::clamp(color + reflected,0.0,255.0);
-}
-/*
-dvec3 Scene::processRay(dvec3 ray, dvec3 origin, int current, unsigned int samples, unsigned int depth){
-  int pIndex = -1, n;
+dvec3 Scene::processRay(dvec3 ray, dvec3 origin, int current, unsigned int depth){
+  int pIndex = -1;
   double t = getDepth(ray, origin, current, pIndex);
   dvec3 color = dvec3(0,0,0);
   if(t < MAX_DOUBLE){
@@ -94,17 +80,18 @@ dvec3 Scene::processRay(dvec3 ray, dvec3 origin, int current, unsigned int sampl
     Primitive* prim = primitiveList[pIndex];
     dvec3 p = origin + ray * t;
     dvec3 normal = prim->getNormal(p);
-    dvec3 lightRay = p - light;
-    bool shaded = getDepth(glm::normalize(-lightRay),p, pIndex, n) < glm::length(lightRay);
-    color = prim->getColor(-normal, lightRay, ray, shaded);
+    dvec3 emittance = prim->getEmittance();
+    dvec3 reflectance = prim->getReflectance();
     if(depth > 0){
-      dvec3 reflection = ray - glm::dot(ray,normal) * 2 * normal;
-      color += processRay(reflection, p, pIndex, samples, depth-1) * 0.15; 
+      dvec3 rRay = glm::normalize(dvec3(rf()-0.5,rf()-0.5,rf()-0.5));
+      rRay = glm::dot(rRay, normal) > 0 ? rRay : -rRay;
+      double cosTheta = glm::dot(rRay, normal);
+      dvec3 BDRF = 2.0*reflectance*cosTheta;
+      color = emittance + BDRF * processRay(rRay, p, pIndex, depth-1); 
     }
   }
-  return glm::clamp(color,0.0,255.0);
+  return color;
 }
-*/
 
 dvec3 Scene::getEyePos(){
   return eyePos;

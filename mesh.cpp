@@ -18,6 +18,5 @@ Mesh::Mesh(const char* path, bool smooth){
     }
   }
   primitveList.push_back(new Sphere(dvec3(0.75,0.5,1.0),
-                                        0.4,
-                                        dvec3(128,128,255)));
+                                        0.4));
 }

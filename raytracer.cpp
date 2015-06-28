@@ -24,16 +24,25 @@ Viewport is clamped to -1,1 on x,y
 
 void RayTracer::drawScene(unsigned int samples, unsigned int bounces){
   dvec3 eyePos = scene.getEyePos();
-  #pragma omp parallel for
+  int c = 0;
+  #pragma omp parallel for schedule(dynamic, 1)
   for(size_t i = 0; i < numBytes/bytesPerPixel; i++){
+    dvec3 outColor;
     double x = (i % viewX + 0.5) / (viewX / 2) - 1.0;
     double y = -(i / viewY + 0.5) / (viewY / 2) + 1.0;
     dvec3 screenPos = dvec3(x,y,0);
     dvec3 eyeRay = glm::normalize(screenPos - eyePos);
-    dvec3 outColor = scene.processRay(eyeRay, screenPos, -1, samples, bounces);
-    screenBuffer[i*bytesPerPixel + 0] = outColor[0];
-    screenBuffer[i*bytesPerPixel + 1] = outColor[1];
-    screenBuffer[i*bytesPerPixel + 2] = outColor[2];
+    for(size_t j = 0; j < samples; j++){
+      outColor += scene.processRay(eyeRay, screenPos, -1, bounces) * (1.0/samples);
+    }
+    #pragma omp atomic
+    c++;
+    if(c % (viewX * numBytes) == 0)
+      std::cout << c/(numBytes/bytesPerPixel) << std::endl;
+    outColor = glm::clamp(outColor, 0.0, 1.0);
+    screenBuffer[i*bytesPerPixel + 0] = glm::pow(outColor[0],1/2.2)*255;
+    screenBuffer[i*bytesPerPixel + 1] = glm::pow(outColor[1],1/2.2)*255;
+    screenBuffer[i*bytesPerPixel + 2] = glm::pow(outColor[2],1/2.2)*255;
   }
   return;
 }
