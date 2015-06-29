@@ -16,7 +16,7 @@ class Scene{
     double getDepth(dvec3, dvec3, int, int&);
     Mesh mesh;
   public:
-    Scene(dvec3,dvec3, unsigned int);
+    Scene(dvec3, unsigned int);
     Primitive* primitiveAt(unsigned int i){ return primitiveList[i]; };
     dvec3 getEyePos();
     dvec3 processRay(dvec3, dvec3, int, unsigned int);

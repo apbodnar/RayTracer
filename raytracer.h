@@ -14,6 +14,6 @@ class RayTracer{
     void saveImage();
     unsigned int viewX, viewY, numBytes;
   public:
-    RayTracer(unsigned int,unsigned int,dvec3,dvec3, unsigned int, unsigned int, unsigned int);
+    RayTracer(unsigned int,unsigned int,dvec3, unsigned int, unsigned int, unsigned int);
     ~RayTracer();
 };

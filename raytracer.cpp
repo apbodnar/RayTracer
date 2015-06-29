@@ -4,8 +4,8 @@
 
 using glm::dvec3;
 
-RayTracer::RayTracer(unsigned int x,unsigned int y, dvec3 iPos, dvec3 lPos, unsigned int numPrims, unsigned int samples, unsigned int bounces) 
-: scene(iPos,lPos, numPrims), viewX(x), viewY(y)
+RayTracer::RayTracer(unsigned int x,unsigned int y, dvec3 iPos, unsigned int numPrims, unsigned int samples, unsigned int bounces) 
+: scene(iPos, numPrims), viewX(x), viewY(y)
 {
   numBytes = viewX * viewY * bytesPerPixel;
   screenBuffer = new unsigned char[numBytes];
@@ -25,24 +25,28 @@ Viewport is clamped to -1,1 on x,y
 void RayTracer::drawScene(unsigned int samples, unsigned int bounces){
   dvec3 eyePos = scene.getEyePos();
   int c = 0;
+  double gc = 1/2.2;
   #pragma omp parallel for schedule(dynamic, 1)
-  for(size_t i = 0; i < numBytes/bytesPerPixel; i++){
-    dvec3 outColor;
-    double x = (i % viewX + 0.5) / (viewX / 2) - 1.0;
-    double y = -(i / viewY + 0.5) / (viewY / 2) + 1.0;
-    dvec3 screenPos = dvec3(x,y,0);
-    dvec3 eyeRay = glm::normalize(screenPos - eyePos);
-    for(size_t j = 0; j < samples; j++){
-      outColor += scene.processRay(eyeRay, screenPos, -1, bounces) * (1.0/samples);
+  for(size_t i = 0; i < viewY; i++){
+    for(size_t j = 0; j < viewX; j++){
+      dvec3 outColor;
+      double x = (j + 0.5) / (viewX / 2.0) - 1.0;
+      double y = -(i + 0.5) / (viewY / (2.0 * viewY/viewX)) + 1.0*viewY/viewX;
+      dvec3 screenPos = dvec3(x,y,0);
+      dvec3 eyeRay = glm::normalize(screenPos - eyePos);
+      for(size_t k = 0; k < samples; k++){
+        outColor += scene.processRay(eyeRay, screenPos, -1, bounces) * (1.0/samples);
+      }
+      outColor = glm::clamp(outColor, 0.0, 1.0);
+      int pc = (i*viewX + j)*bytesPerPixel;
+      screenBuffer[pc + 0] = glm::pow(outColor[0],gc)*255;
+      screenBuffer[pc + 1] = glm::pow(outColor[1],gc)*255;
+      screenBuffer[pc + 2] = glm::pow(outColor[2],gc)*255;
     }
     #pragma omp atomic
     c++;
-    if(c % (viewX * numBytes) == 0)
-      std::cout << c/(numBytes/bytesPerPixel) << std::endl;
-    outColor = glm::clamp(outColor, 0.0, 1.0);
-    screenBuffer[i*bytesPerPixel + 0] = glm::pow(outColor[0],1/2.2)*255;
-    screenBuffer[i*bytesPerPixel + 1] = glm::pow(outColor[1],1/2.2)*255;
-    screenBuffer[i*bytesPerPixel + 2] = glm::pow(outColor[2],1/2.2)*255;
+    std::cout << i*100.0/viewY << "%" << '\r';
+    std::cout.flush();
   }
   return;
 }

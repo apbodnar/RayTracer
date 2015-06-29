@@ -9,20 +9,10 @@ double rf(){
   return rand() / (double)RAND_MAX;
 }
 
-dvec3 cube[8] = {
-  dvec3(-1, -1,  2),
-  dvec3( 1, -1,  2),
-  dvec3( 1,  1,  2),
-  dvec3(-1,  1,  2),
-  dvec3(-1, -1, 0),
-  dvec3( 1, -1, 0),
-  dvec3( 1,  1, 0),
-  dvec3(-1,  1, 0)
-};
-
-Scene::Scene(dvec3 eyePos, dvec3 light, unsigned int numPrims) 
+Scene::Scene(dvec3 eyePos, unsigned int numPrims) 
 : mesh("bunny.obj", true)
 {
+  srand(time(NULL));
   this->light = light;
   this->eyePos = eyePos;
   initObjects(numPrims);
@@ -47,28 +37,19 @@ double Scene::getDepth(dvec3 ray, dvec3 origin, int current, int& pIndex){
 
 void Scene::initObjects(unsigned int numPrims){
   srand(time(NULL));
-  for(size_t i = 0; i < numPrims; i++){
-    primitiveList.push_back(new Sphere(dvec3(rf()*2 -1,rf()*2-1,rf()+0.5),
-                                        rf()/5.0 + 0.2,
-                                        dvec3(rf(),rf(),rf()),
-                                        0.75, 0));
-  }
-  //primitiveList.push_back(new Sphere(dvec3(1e5+1,0,1), 1e5, dvec3(1,1,1),0.75, 0.0));
-  //primitiveList.push_back(new Sphere(dvec3(-1e5-1,0,1), 1e5, dvec3(1,1,1),0.75, 0.0));
-  //primitiveList.push_back(new Sphere(dvec3(0,1e5+1,1), 1e5, dvec3(0.5,1,0.5),0.75, 0.0));
-  //primitiveList.push_back(new Sphere(dvec3(0,-1e5-1,1), 1e5, dvec3(1,0.5,0.5),0.75, 0.0));
-  //primitiveList.push_back(new Sphere(dvec3(0,0,1e5+2), 1e5, dvec3(1,1,1),0.75, 0.0));
-  primitiveList.push_back(new Triangle(cube[0],cube[3],cube[2],dvec3(1,1,1),0.75,0));
-  primitiveList.push_back(new Triangle(cube[2],cube[1],cube[0],dvec3(1,1,1),0.75,0));
-  primitiveList.push_back(new Triangle(cube[0],cube[4],cube[7],dvec3(1,0.25,0.25),0.75,0));
-  primitiveList.push_back(new Triangle(cube[7],cube[3],cube[0],dvec3(1,0.25,0.25),0.75,0));
-  primitiveList.push_back(new Triangle(cube[0],cube[1],cube[5],dvec3(1,1,1),0.75,0));
-  primitiveList.push_back(new Triangle(cube[5],cube[4],cube[0],dvec3(1,1,1),0.75,0));
-  primitiveList.push_back(new Triangle(cube[3],cube[7],cube[6],dvec3(1,1,1),0.75,0));
-  primitiveList.push_back(new Triangle(cube[6],cube[2],cube[3],dvec3(1,1,1),0.75,0));
-  primitiveList.push_back(new Triangle(cube[1],cube[2],cube[6],dvec3(0.25,0.25,1),0.75,0));
-  primitiveList.push_back(new Triangle(cube[6],cube[5],cube[1],dvec3(0.25,0.25,1),0.75,0));
-  primitiveList.push_back(new Sphere(dvec3(0,1.15,1), 0.4, dvec3(1,1,1), 0, 12.0));
+  primitiveList.push_back(new Sphere(dvec3(0.7,0.7,1.7),0.25,glm::normalize(dvec3(rf(),rf(),rf())),0.75, 0));
+  primitiveList.push_back(new Sphere(dvec3(-0.7,-0.7,0.3),0.25,glm::normalize(dvec3(rf(),rf(),rf())),0.75, 0));
+  primitiveList.push_back(new Sphere(dvec3(-0.3,0.3,1),0.3,glm::normalize(dvec3(rf(),rf(),rf())),0.75, 0));
+  primitiveList.push_back(new Sphere(dvec3(0.3,-0.3,1),0.3,glm::normalize(dvec3(rf(),rf(),rf())),0.75, 0));
+  primitiveList.push_back(new Triangle(dvec3(-3,-1,2),dvec3(0,2,2),dvec3(3,-1,2),dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(dvec3(-1,-3,0),dvec3(-1,3,0),dvec3(-1,0,3),dvec3(1,0.1,0.1),1.0,0));
+  primitiveList.push_back(new Triangle(dvec3(-3,-1,0),dvec3(0,-1,3),dvec3(3,-1,0),dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(dvec3(-3,1,0),dvec3(3,1,0),dvec3(0,1,3),dvec3(1,1,1),0.75,0));
+  primitiveList.push_back(new Triangle(dvec3(1,-3,0),dvec3(1,0,3),dvec3(1,3,0),dvec3(0.1,0.1,1),1.0,0));
+  primitiveList.push_back(new Sphere(dvec3(0,1,1), 0.25, dvec3(1,1,1), 0, 5.0));
+  primitiveList.push_back(new Sphere(dvec3(-1,-1,2), 0.15, dvec3(0.1,0.1,1), 1, 6.0));
+  primitiveList.push_back(new Sphere(dvec3(1,-1,2), 0.15, dvec3(1,0.1,0.1), 1, 6.0));
+  primitiveList.push_back(new Sphere(dvec3(0,-1,0.5), 0.15, dvec3(0.1,1.0,0.1), 1, 6.0));
 }
 
 dvec3 Scene::processRay(dvec3 ray, dvec3 origin, int current, unsigned int depth){

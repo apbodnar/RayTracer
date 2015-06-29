@@ -27,8 +27,7 @@ Sphere::Sphere(dvec3 center, double radius){
 double Sphere::checkCollision(dvec3 inRay, dvec3 origin){
   double scalar = glm::dot(inRay,origin - center);  
   double squared = (scalar * scalar) - glm::distance2(origin, center) + (radius * radius);
-  double root = glm::sqrt(squared);
-  return squared >= 0 ? -scalar - root : MAX_DOUBLE;
+  return squared >= 0 ? -scalar - glm::sqrt(squared) : MAX_DOUBLE;
 }
 
 dvec3 Sphere::getNormal(dvec3 p){
@@ -66,9 +65,9 @@ double Triangle::checkCollision(dvec3 inRay, dvec3 origin){
   dvec3 e2 = v3 - v1;
   dvec3 p = glm::cross(inRay,e2);
   double det = glm::dot(p,e1);
-  double invDet = 1.0 / det;
   if(det > -EPSILON && det < EPSILON) return MAX_DOUBLE;
   dvec3 span = origin - v1;
+  double invDet = 1.0 / det;
   double u = glm::dot(span, p) * invDet;
   if(u < 0.0 || u > 1.0) return MAX_DOUBLE;
   dvec3 q = glm::cross(span,e1);
@@ -79,5 +78,5 @@ double Triangle::checkCollision(dvec3 inRay, dvec3 origin){
 }
 
 dvec3 Triangle::getNormal(dvec3 p){
-  return glm::dot(p,n1) > 0 ? -n1 : n1;
+  return n1;
 }
